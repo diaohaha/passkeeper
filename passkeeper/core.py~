@@ -12,10 +12,9 @@ from sqlalchemy.orm import *
 import string
 import sys
 import argparse
-from pkg_resources import resource_stream
 
 '''init the sqlite database'''
-#with resoure_stream(__name__,'pwddb.db') as db 
+
 class pwd(object):
 	'''the class contect with database tables'''
 	def _init_(self,where,user,pwd):
@@ -25,14 +24,14 @@ class pwd(object):
 		
 engine = create_engine('sqlite:///pwddb.db')
 metadata=MetaData(engine)
-pwd_table=Table(
-	'gaodapwd',metadata,
+gaoda_pwd_table=Table(
+	'pwd',metadata,
 	Column('where',String,primary_key=True),
 	Column('user',String),
 	Column('pwd',String)
 	)
 metadata.create_all(engine)
-mapper(pwd,pwd_table)	
+mapper(pwd,gaoda_pwd_table)	
 session=sessionmaker(bind=engine)
 session=create_session()
 
@@ -43,7 +42,7 @@ def look():
 	record = []
 	i=0
 	for temp in session.query(pwd).all():
-		record.append([temp.where,temp.user,temp.pwd])
+		record.append([temp.where,temp.user,tmp.pwd])
 		i=1
 	if i==0:
 		record.append("empty")
@@ -51,9 +50,9 @@ def look():
 
 def add(new_record):
 	temp=pwd()
-	temp.where = new_record[0]
-	temp.user = new_record[1]
-	temp.pwd = new_record[2]
+	temp.where=new_record[0]
+	temp.user=new_record[1]
+	temp.pwd=new_record[2]
 	try:
 		session.add(temp)
 		session.flush()
@@ -70,11 +69,10 @@ def delete(del_place):
 	session.flush()		
 	return sign
 
-def perfect_info(add_list):
+def perfect_info(string):
 	'''test the input format when add new record'''
 	i=0
 	context=[]
-	string = str(add_list)
 	for value in string.split(','):
 		i=i+1
 		context.append(value)
@@ -93,32 +91,23 @@ def main():
 	
 	if args.look:
 		records=look()
-		if records[0]=="empty":
-			sys.stdout.write("empty\n")
-		else:
-			for record in records:	
-				sys.stdout.write(record[0])
-				sys.stdout.write("   ")
-				sys.stdout.write(record[1])
-				sys.stdout.write("   ")
-				sys.stdout.write(record[2])
-				sys.stdout.write("\n")
-		sys.exit(0)
+		sys.stdout.write(records)
+		sys.exit
 	if args.add:
-		context = perfect_info(args.add)
-		sign = add(context)
-		if sign:
+		try:
+			context = perfect_info(arg.add)
+			sign = add(context)
 			sys.stdout.write("add succeful\n")
 			sys.exit(0)
-		else:
+		except:
 			sys.stdout.write("add faild\n")
 			sys.exit(1)
 	if args.delete:
-		sign = delete(args.delete)
-		if sign:
+		try:
+			del(agrs.delete)
 			sys.stdout.write("delete succeful\n")
 			sys.exit(0)
-		else:	
+		except:
 			sys.stdout.write("delete faild\n")
 			sys.exit(1)
 
